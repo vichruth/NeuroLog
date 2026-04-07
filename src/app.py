@@ -1,16 +1,15 @@
 import streamlit as st
 import time
 import os
+from search import NeuroLogSearch
 
-# 1. Page Configuration (Set to Wide for dashboard feel)
+# 1. Page Configuration
 st.set_page_config(page_title="NeuroLog | Edge Interface", page_icon="🧠", layout="wide")
 
-# 2. Custom CSS Injection (The Hackathon Polish)
+# 2. Custom CSS Injection (Dark Enterprise Theme)
 st.markdown("""
     <style>
-    /* Darken the background and soften the text */
     .stApp { background-color: #0E1117; color: #FAFAFA; }
-    /* Style the search bar to look embedded */
     .stTextInput input {
         background-color: #1E2127;
         color: white;
@@ -20,47 +19,54 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-from search import NeuroLogSearch # Import your new backend
-
-# --- SYSTEM INITIALIZATION (CACHED) ---
-# st.cache_resource ensures the model stays in VRAM and doesn't reload on every keystroke
-@st.cache_resource(show_spinner="Loading Edge AI Model into VRAM...")
+# 3. Load AI Engine (Cached to prevent VRAM overflow on UI reload)
+@st.cache_resource(show_spinner="Loading Edge AI Model into VRAM... (This takes a few seconds)")
 def load_engine():
     return NeuroLogSearch()
 
-engine = load_engine() 
+try:
+    engine = load_engine()
+    engine_loaded = True
+except Exception as e:
+    st.error(f"Failed to load AI Engine. Did you run `ingest.py` first? Error: {e}")
+    engine_loaded = False
 
 # --- FRONTEND UI ---
 st.title("⚡ NeuroLog | Vision Intelligence Node")
 st.markdown("_Natural Language Video Search | 100% Local Edge Compute_")
 st.divider()
 
-# Sidebar: Professional System Dashboard
+# Sidebar: System Dashboard
 with st.sidebar:
     st.markdown("### 🏢 Facility: Anchor HQ")
     st.caption("Equinox 2026 Prototype")
     st.divider()
     
     st.header("⚙️ Telemetry")
-    # Using metrics makes it look like a real enterprise dashboard
     st.metric(label="Active Compute Node", value="RTX 4050")
-    st.metric(label="VRAM Utilization", value="3.2 / 6.0 GB", delta="-1.1 GB (Optimized)", delta_color="inverse")
-    st.metric(label="FAISS Index Size", value="128 MB")
+    st.metric(label="VRAM Status", value="Optimized (FP16)")
+    if engine_loaded:
+        st.metric(label="Database Size", value=f"{engine.index.ntotal} Frames")
     
     st.divider()
     video_path = st.text_input("Active Camera Stream (Local Path)", value="test.mp4")
 
-# Layout: Center the search bar using columns
+# Main Layout
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     search_query = st.text_input("🔍 Semantic Search Query:", 
-                                 placeholder="e.g., 'person wearing a red jacket'")
+                                 placeholder="e.g., 'a red car' or 'person running'")
 
-# --- NEW EXECUTION LOGIC ---
-        # The "AI" computes
-        result = engine.find_match(search_query)
-        my_bar.empty() # Clear progress bar
-        
+# Execution Logic
+if search_query and engine_loaded:
+    if not os.path.exists(video_path):
+        st.error(f"[!] Video '{video_path}' not found in current directory.")
+    else:
+        # Progress Bar
+        with st.spinner("Vectorizing text and traversing FAISS index..."):
+            # The AI computes the match!
+            result = engine.find_match(search_query)
+            
         matched_timestamp = result["timestamp"]
         
         st.success(f"🎯 High-confidence match identified at **00:{matched_timestamp:02d}**.")
@@ -69,6 +75,7 @@ with col2:
         res_col1, res_col2 = st.columns([3, 1])
         
         with res_col1:
+            # Play video at the exact second
             st.video(video_path, start_time=matched_timestamp)
         
         with res_col2:
@@ -78,4 +85,9 @@ with col2:
             st.metric(label="Vector Distance", value=f"{result['distance_score']}")
             
             with st.expander("Show Tensor Logs"):
-                st.code(f"Query shape: [1, 512]\nIndex: FlatIP\nL2 Norm: Applied\nTime: {result['latency']}s", language="yaml")
+                st.code(f"""
+Query shape: [1, 512]
+Index: FlatIP
+Precision: FP16
+Time: {result['latency']}s
+                """, language="yaml")
