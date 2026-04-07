@@ -1,0 +1,7 @@
+# .gitignore
+__pycache__/
+*.mp4
+*.avi
+*.index
+*.npy
+.env
