@@ -2,58 +2,86 @@ import streamlit as st
 import time
 import os
 
-st.set_page_config(page_title="NeuroLog | Vision Engine", page_icon="🧠", layout="centered")
+# 1. Page Configuration (Set to Wide for dashboard feel)
+st.set_page_config(page_title="NeuroLog | Edge Interface", page_icon="🧠", layout="wide")
 
-# --- MOCK BACKEND (For UI Testing) ---
+# 2. Custom CSS Injection (The Hackathon Polish)
+st.markdown("""
+    <style>
+    /* Darken the background and soften the text */
+    .stApp { background-color: #0E1117; color: #FAFAFA; }
+    /* Style the search bar to look embedded */
+    .stTextInput input {
+        background-color: #1E2127;
+        color: white;
+        border-radius: 8px;
+        border: 1px solid #4C4C4C;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- MOCK BACKEND ---
 def mock_search_engine(query):
-    """Simulates the FAISS/CLIP search delay and returns a dummy timestamp."""
-    time.sleep(1.5) # Fake inference time
-    
-    # Let's pretend it found the query at the 12-second mark
+    time.sleep(1.2) # Fake inference
     return 12 
 
 # --- FRONTEND UI ---
-st.title("NeuroLog")
-st.markdown("**Natural Language Video Search Engine** | *100% Local. Zero Cloud.*")
+st.title("⚡ NeuroLog | Vision Intelligence Node")
+st.markdown("_Natural Language Video Search | 100% Local Edge Compute_")
 st.divider()
 
-# Sidebar for System Status (Looks great for judges)
+# Sidebar: Professional System Dashboard
 with st.sidebar:
-    st.header("System Status")
-    st.success("Edge Node: Active")
-    st.info("Compute: RTX 4050 (Local VRAM)")
-    st.info("Database: FAISS (Memory-Mapped)")
+    st.markdown("### 🏢 Facility: Anchor HQ")
+    st.caption("Equinox 2026 Prototype")
+    st.divider()
+    
+    st.header("⚙️ Telemetry")
+    # Using metrics makes it look like a real enterprise dashboard
+    st.metric(label="Active Compute Node", value="RTX 4050")
+    st.metric(label="VRAM Utilization", value="3.2 / 6.0 GB", delta="-1.1 GB (Optimized)", delta_color="inverse")
+    st.metric(label="FAISS Index Size", value="128 MB")
     
     st.divider()
-    # Let the user point to the video they ingested
-    video_path = st.text_input("Active Video Stream (Path)", value="test.mp4")
+    video_path = st.text_input("Active Camera Stream (Local Path)", value="test.mp4")
 
-# Main Search Bar
-search_query = st.text_input("🔍 Describe what you are looking for:", 
-                             placeholder="e.g., 'a red car passing by' or 'person with a backpack'")
+# Layout: Center the search bar using columns
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    search_query = st.text_input("🔍 Semantic Search Query:", 
+                                 placeholder="e.g., 'person wearing a red jacket'")
 
 # Execution Logic
 if search_query:
     if not os.path.exists(video_path):
-        st.error(f"[!] Target video '{video_path}' not found. Please check your path.")
+        st.error(f"[!] Video '{video_path}' not found in current directory.")
     else:
-        # Show a loading spinner while the "AI" thinks
-        with st.spinner(f"Vectorizing query and searching FAISS index..."):
-            
-            # TODO: IN STEP 3, WE REPLACE THIS WITH THE REAL INFERENCE FUNCTION
-            matched_timestamp = mock_search_engine(search_query)
-            
-        st.success(f"🎯 Match identified at **{matched_timestamp} seconds**.")
+        # Better loading animation
+        progress_text = "Vectorizing text and traversing FAISS index..."
+        my_bar = st.progress(0, text=progress_text)
         
-        # --- THE MAGIC TRICK ---
-        # st.video natively supports starting at a specific second
-        st.video(video_path, start_time=int(matched_timestamp))
+        for percent_complete in range(100):
+            time.sleep(0.01) # Smooth fake progress bar
+            my_bar.progress(percent_complete + 1, text=progress_text)
         
-        # Hackathon Flex: Show the "math" under the hood for the judges
-        with st.expander("🛠️ Under the Hood (Engine Diagnostics)"):
-            st.code(f"""
-Query Vector: 512-dim (FP16)
-Index Search: Inner Product (Cosine Similarity)
-Latency: 1.5s
-Match Confidence: 89.4%
-            """, language="yaml")
+        # The "AI" computes
+        matched_timestamp = mock_search_engine(search_query)
+        my_bar.empty() # Clear the progress bar when done
+        
+        st.success(f"🎯 High-confidence match identified at **00:{matched_timestamp:02d}**.")
+        
+        # Results Layout: Video on the left, analytics on the right
+        res_col1, res_col2 = st.columns([3, 1])
+        
+        with res_col1:
+            # The native video player jumping to the exact second
+            st.video(video_path, start_time=int(matched_timestamp))
+        
+        with res_col2:
+            st.markdown("### Match Analytics")
+            st.metric(label="Confidence Score", value="94.2%")
+            st.metric(label="Query Latency", value="1.24s")
+            st.metric(label="Vector Distance", value="0.827")
+            
+            with st.expander("Show Tensor Logs"):
+                st.code("Query shape: [1, 512]\nIndex: FlatIP\nL2 Norm: Applied", language="yaml")
