@@ -20,10 +20,15 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- MOCK BACKEND ---
-def mock_search_engine(query):
-    time.sleep(1.2) # Fake inference
-    return 12 
+from search import NeuroLogSearch # Import your new backend
+
+# --- SYSTEM INITIALIZATION (CACHED) ---
+# st.cache_resource ensures the model stays in VRAM and doesn't reload on every keystroke
+@st.cache_resource(show_spinner="Loading Edge AI Model into VRAM...")
+def load_engine():
+    return NeuroLogSearch()
+
+engine = load_engine() 
 
 # --- FRONTEND UI ---
 st.title("⚡ NeuroLog | Vision Intelligence Node")
@@ -51,37 +56,26 @@ with col2:
     search_query = st.text_input("🔍 Semantic Search Query:", 
                                  placeholder="e.g., 'person wearing a red jacket'")
 
-# Execution Logic
-if search_query:
-    if not os.path.exists(video_path):
-        st.error(f"[!] Video '{video_path}' not found in current directory.")
-    else:
-        # Better loading animation
-        progress_text = "Vectorizing text and traversing FAISS index..."
-        my_bar = st.progress(0, text=progress_text)
-        
-        for percent_complete in range(100):
-            time.sleep(0.01) # Smooth fake progress bar
-            my_bar.progress(percent_complete + 1, text=progress_text)
-        
+# --- NEW EXECUTION LOGIC ---
         # The "AI" computes
-        matched_timestamp = mock_search_engine(search_query)
-        my_bar.empty() # Clear the progress bar when done
+        result = engine.find_match(search_query)
+        my_bar.empty() # Clear progress bar
+        
+        matched_timestamp = result["timestamp"]
         
         st.success(f"🎯 High-confidence match identified at **00:{matched_timestamp:02d}**.")
         
-        # Results Layout: Video on the left, analytics on the right
+        # Results Layout
         res_col1, res_col2 = st.columns([3, 1])
         
         with res_col1:
-            # The native video player jumping to the exact second
-            st.video(video_path, start_time=int(matched_timestamp))
+            st.video(video_path, start_time=matched_timestamp)
         
         with res_col2:
             st.markdown("### Match Analytics")
-            st.metric(label="Confidence Score", value="94.2%")
-            st.metric(label="Query Latency", value="1.24s")
-            st.metric(label="Vector Distance", value="0.827")
+            st.metric(label="Confidence Score", value=f"{result['confidence']}%")
+            st.metric(label="Query Latency", value=f"{result['latency']}s")
+            st.metric(label="Vector Distance", value=f"{result['distance_score']}")
             
             with st.expander("Show Tensor Logs"):
-                st.code("Query shape: [1, 512]\nIndex: FlatIP\nL2 Norm: Applied", language="yaml")
+                st.code(f"Query shape: [1, 512]\nIndex: FlatIP\nL2 Norm: Applied\nTime: {result['latency']}s", language="yaml")
