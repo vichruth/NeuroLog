@@ -10,7 +10,7 @@ class NeuroLogSearch:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"[*] Initializing Search Node on {self.device.upper()}")
         
-        # Manual Cast Method
+        # Manual Cast for Version Compatibility
         self.model = CLIPModel.from_pretrained(model_id).to(self.device)
         if self.device == "cuda":
             self.model = self.model.half()
@@ -30,7 +30,6 @@ class NeuroLogSearch:
         start_time = time.time()
         inputs = self.processor(text=[text_query], return_tensors="pt", padding=True).to(self.device)
         
-        # Match text precision to model precision
         if self.device == "cuda":
             inputs = {k: v.half() if v.dtype == torch.float32 else v for k, v in inputs.items()}
         
@@ -39,14 +38,20 @@ class NeuroLogSearch:
             text_features = text_features / text_features.norm(p=2, dim=-1, keepdim=True)
             
         vector_np = text_features.cpu().numpy().astype('float32')
+        # Search for top_k matches
         distances, indices = self.index.search(vector_np, top_k)
         
-        best_idx = indices[0][0]
-        confidence_pct = round(max(0, min(100, float(distances[0][0]) * 100)), 1)
+        latency = round(time.time() - start_time, 3)
+        results = []
         
-        return {
-            "timestamp": int(self.timestamps[best_idx]),
-            "confidence": confidence_pct,
-            "latency": round(time.time() - start_time, 3),
-            "distance_score": round(float(distances[0][0]), 4)
-        }
+        for i in range(top_k):
+            idx = indices[0][i]
+            score = distances[0][i]
+            results.append({
+                "timestamp": int(self.timestamps[idx]),
+                "confidence": round(max(0, min(100, float(score) * 100)), 1),
+                "distance_score": round(float(score), 4),
+                "latency": latency
+            })
+            
+        return results
