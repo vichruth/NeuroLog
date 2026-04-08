@@ -1,7 +1,68 @@
-# .gitignore
-__pycache__/
+# ---------------------------------------------------
+# NeuroLog Project Specifics
+# ---------------------------------------------------
+# Ignore massive raw video files
 *.mp4
+*.mkv
 *.avi
+*.mov
+
+# Ignore local vector databases and numpy arrays
 *.index
 *.npy
-.env
+
+# ---------------------------------------------------
+# Python Standard
+# ---------------------------------------------------
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+.venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
+# ---------------------------------------------------
+# IDEs and OS Files
+# ---------------------------------------------------
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm / IntelliJ
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
