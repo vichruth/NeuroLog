@@ -85,7 +85,7 @@ class NeuroLogIngestor:
 
 if __name__ == "__main__":
     ingestor = NeuroLogIngestor(batch_size=32) 
-    video_path = "/home/vichruth/GitHub/NeuroLog/hackathon_videoplayback.mp4"
+    video_path = "/home/vichruth/GitHub/NeuroLog/hackathonvideo.mp4"
     try:
         ingestor.process_video(video_path)
         ingestor.save_index()

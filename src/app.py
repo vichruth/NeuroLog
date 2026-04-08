@@ -28,12 +28,12 @@ st.markdown("_Semantic Video Search | 100% Offline Edge Compute_")
 st.divider()
 
 with st.sidebar:
-    st.header("⚙️ Telemetry")
+    st.header(" Telemetry")
     st.metric(label="Compute Hardware", value="RTX 4050 (6GB)")
     if engine_ready:
         st.metric(label="Index Size", value=f"{len(engine.timestamps)} Frames")
     st.divider()
-    video_path = st.text_input("Source Video", value="/home/vichruth/GitHub/NeuroLog/hackathon_videoplayback.mp4")
+    video_path = st.text_input("Source Video", value="/home/vichruth/GitHub/NeuroLog/hackathonvideo.mp4")
 
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
@@ -44,7 +44,7 @@ if query and engine_ready:
         # Get Top 3 matches
         results = engine.find_match(query, top_k=3)
     
-    st.subheader(f"🎯 Top {len(results)} Semantic Matches")
+    st.subheader(f" Top {len(results)} Semantic Matches")
     
     # Create side-by-side columns
     cols = st.columns(len(results))
