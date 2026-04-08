@@ -54,3 +54,22 @@ source neurolog_env/bin/activate  # On Windows use `neurolog_env\Scripts\activat
 # Install core dependencies (CPU-optimized FAISS for index storage)
 pip install torch torchvision torchaudio --index-url [https://download.pytorch.org/whl/cu118](https://download.pytorch.org/whl/cu118)
 pip install transformers opencv-python Pillow numpy faiss-cpu streamlit
+```
+
+## The 15-Hour Sprint Log (Hackathon Development)
+
+This entire architecture was conceptualized, built, and optimized locally by a solo developer during the first 15 hours of a 60-hour hackathon. Here is the chronological breakdown of the engineering process:
+
+* **Hours 1-3: The Foundation** * Configured the local environment and established the core Hugging Face pipeline. 
+  * Initially attempted to run standard Vision Transformers but immediately hit the VRAM ceiling on the target edge hardware (RTX 4050 6GB).
+* **Hours 4-7: Hardware Optimization & Tensor Math** * Ditched the high-level API wrappers. 
+  * Interfaced directly with PyTorch to manually cast model weights and input tensors to FP16 (`.half()`). 
+  * Successfully reduced the VRAM footprint from ~1.5GB+ to under 600MB, leaving room for frame buffering and the OS.
+* **Hours 8-10: The Vector Ingestion Pipeline** * Built the OpenCV ingestion loop to extract temporal frames. 
+  * Applied L2 Normalization to the 512-dimensional CLIP embeddings to ensure compatibility with FAISS's Inner Product search, mapping the latent space for accurate Cosine Similarity.
+* **Hours 11-13: The Architecture Pivot (The Center-Zoom Experiment)** * *Hypothesis:* Small objects (pedestrians) were getting washed out by wide-angle backgrounds. 
+  * *Action:* Upgraded to `patch16` and implemented a dual-ingestion loop (full frame + 50% center crop per second). 
+  * *Result:* Pedestrian recall spiked, but peripheral object integrity failed (e.g., cars on the edge of the frame dropped to 4% confidence because the crop amputated them).
+* **Hour 14: The Rollback & Data Upgrade** * Executed a data-driven rollback to the stable `patch32` full-frame architecture. 
+  * To solve the pedestrian recall issue without artificial cropping, I upgraded the input stream to a high-bitrate HD video, feeding the model cleaner pixel density natively. Accuracy on difficult targets spiked to 30%+.
+* **Hour 15: Edge UI & Packaging** * Wrapped the backend in a lightweight Streamlit UI to visualize Top-K matches, confidence scores, and latency metrics in real-time.
