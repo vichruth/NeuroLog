@@ -8,15 +8,15 @@
 ## Demo
 
 NeuroLog searching ~24 minutes of street footage for the query *"a green taxi"* — fully offline on a 6 GB RTX 4050.
+## Demo
 
-**1. Source footage ingested (no labels, no tagging)**
-![Source video ingested into NeuroLog](assets/demo-source.png)
-
-**2. Natural-language query**
-![Querying "a green taxi"](assets/demo-query.png)
-
-**3. Top-3 semantic matches — ~0.284s latency, fully offline**
-![Top-3 results with latency and similarity scores](assets/demo-results.png)
+<table>
+  <tr>
+    <td><img src="assets/demo-source.png" width="100%"><br><sub><b>1.</b> Source footage ingested</sub></td>
+    <td><img src="assets/demo-query.png" width="100%"><br><sub><b>2.</b> Query: "a green taxi"</sub></td>
+    <td><img src="assets/demo-results.png" width="100%"><br><sub><b>3.</b> Top-3 matches, ~0.284s</sub></td>
+  </tr>
+</table>
 
 **Measured on an RTX 4050 (6 GB):** ~0.284 s query latency over a 1,414-frame index, fully offline, using FP16 inference.
 
