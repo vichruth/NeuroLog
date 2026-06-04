@@ -8,8 +8,6 @@
 ## Demo
 
 NeuroLog searching ~24 minutes of street footage for the query *"a green taxi"* — fully offline on a 6 GB RTX 4050.
-## Demo
-
 <table>
   <tr>
     <td><img src="assets/demo-source.png" width="100%"><br><sub><b>1.</b> Source footage ingested</sub></td>
