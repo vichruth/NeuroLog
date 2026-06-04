@@ -5,6 +5,18 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=flat&logo=PyTorch&logoColor=white)](https://pytorch.org/)
 
 **NeuroLog** is a fully offline, zero-shot multimodal video search engine that runs on consumer-grade edge hardware (a 6 GB-VRAM laptop GPU). It lets you search hours of raw video footage with natural-language queries — *"person wearing a black backpack,"* *"yellow taxi crossing the street"* — with no manual tagging, no labels, and no cloud API.
+## Demo
+
+NeuroLog searching ~24 minutes of street footage for the query *"a green taxi"* — fully offline on a 6 GB RTX 4050.
+
+**1. Source footage ingested (no labels, no tagging)**
+![Source video ingested into NeuroLog](assets/demo-source.png)
+
+**2. Natural-language query**
+![Querying "a green taxi"](assets/demo-query.png)
+
+**3. Top-3 semantic matches — ~0.284s latency, fully offline**
+![Top-3 results with latency and similarity scores](assets/demo-results.png)
 
 **Measured on an RTX 4050 (6 GB):** ~0.284 s query latency over a 1,414-frame index, fully offline, using FP16 inference.
 
