@@ -9,6 +9,7 @@
 
 # Ignore local vector databases and numpy arrays
 *.index
+*.faiss
 *.npy
 
 # ---------------------------------------------------
@@ -50,6 +51,17 @@ env/
 ENV/
 env.bak/
 venv.bak/
+neurolog_env/
+
+# Environment variable files
+.env
+.env.local
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
 
 # ---------------------------------------------------
 # IDEs and OS Files

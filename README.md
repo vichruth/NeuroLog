@@ -71,19 +71,44 @@ cd NeuroLog
 python -m venv neurolog_env
 source neurolog_env/bin/activate        # Windows: neurolog_env\Scripts\activate
 
+# Install a CUDA build of PyTorch first (for FP16 GPU inference)
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-pip install transformers opencv-python Pillow numpy faiss-cpu streamlit
+
+# Then the remaining dependencies
+pip install -r requirements.txt
 ```
 
 ### Run
+Run both commands from the repository root.
 ```bash
-# 1. Ingest a video and build the FAISS index
-python ingest.py --video path/to/footage.mp4 --fps 1
+# 1. Ingest a video and build the FAISS index (writes neurolog.index + neurolog_times.npy)
+python src/ingest.py --video path/to/footage.mp4 --fps 1
 
-# 2. Launch the search UI
-streamlit run app.py
+# 2. Point the UI at that same video and launch it
+export NEUROLOG_VIDEO=path/to/footage.mp4   # Windows: set NEUROLOG_VIDEO=...
+streamlit run src/app.py
 ```
-*(Adjust script names to match the repo.)*
+
+`ingest.py` is fully configurable — run `python src/ingest.py --help` for all options
+(`--fps`, `--batch-size`, `--model`, `--index-name`, `--output-dir`).
+
+---
+
+## Project structure
+```
+NeuroLog/
+├── src/
+│   ├── ingest.py     # CLI: sample frames, embed with CLIP (FP16), build FAISS index
+│   ├── search.py     # Query engine: embed text, cosine-similarity nearest-neighbour search
+│   └── app.py        # Streamlit dashboard for interactive semantic search
+├── assets/           # Demo screenshots
+├── requirements.txt
+└── README.md
+```
+
+The FAISS index (`*.index`) and timestamp array (`*.npy`) are generated locally at
+ingestion time and are intentionally git-ignored — like the raw video, they are data
+artifacts, not source.
 
 ---
 
